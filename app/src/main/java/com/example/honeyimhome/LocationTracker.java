@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat;
 public class LocationTracker extends LocationCallback {
     private Context context;
     private String LogTag = "LocationTracker";
+    public static String locationAction = "location_update";
     public boolean isTracking = false;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
@@ -41,6 +42,10 @@ public class LocationTracker extends LocationCallback {
         if (!permission_granted) {
             throw new AssertionError("Trying to start tracking without location permission");
         }
+        if (isTracking) {
+            Log.d(LogTag, "trying to track while allready tracking");
+            return;
+        }
         isTracking = true;
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -50,11 +55,13 @@ public class LocationTracker extends LocationCallback {
         locationRequest.setInterval(3 * 1000);
         mFusedLocationClient.requestLocationUpdates(locationRequest, this, Looper.getMainLooper());
         Log.d(LogTag, "starting to track location");
-
-
     }
 
     public void stopTracking() {
+        if (!isTracking) {
+            Log.d(LogTag, "trying to stop track while allready stopped tracking");
+            return;
+        }
         isTracking = false;
         if (mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(this);
@@ -77,7 +84,7 @@ public class LocationTracker extends LocationCallback {
 
     private void sendLocationBroadcast(Context context, LocationInfo locationInfo) {
         Intent intent = new Intent();
-        intent.setAction("location_update");
+        intent.setAction(locationAction);
         intent.putExtra("location", locationInfo);
         context.sendBroadcast(intent);
     }

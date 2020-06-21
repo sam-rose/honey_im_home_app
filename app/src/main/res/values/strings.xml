@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Honey Im Home</string>
+    <string name="channel_name">sms_notification</string>
+    <string name="channel_description">show that sms is sent</string>
 </resources>
